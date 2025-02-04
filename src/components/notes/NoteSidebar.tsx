@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Settings, Plus, Home, Search, FolderOpen } from "lucide-react";
 import { useTheme } from "next-themes";
+import { SpotifyPlayer } from "@/components/spotify/SpotifyPlayer";
 
 export function NoteSidebar() {
   const { theme, setTheme } = useTheme();
@@ -44,6 +45,8 @@ export function NoteSidebar() {
           </Button>
         </nav>
       </div>
+
+      <SpotifyPlayer />
 
       <div className="p-4 border-t border-border">
         <Button variant="ghost" className="w-full justify-start">
