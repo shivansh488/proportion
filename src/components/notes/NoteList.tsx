@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { Search } from "lucide-react";
 
 interface NoteItemProps {
   title: string;
@@ -12,7 +13,7 @@ const NoteItem = ({ title, date, excerpt, active, onClick }: NoteItemProps) => (
   <button
     onClick={onClick}
     className={cn(
-      "w-full text-left p-4 border-b border-border transition-colors",
+      "w-full text-left p-4 transition-colors",
       active ? "bg-accent" : "hover:bg-accent/50"
     )}
   >
@@ -26,46 +27,38 @@ const NoteItem = ({ title, date, excerpt, active, onClick }: NoteItemProps) => (
 
 export function NoteList() {
   return (
-    <div className="w-80 h-screen border-r border-border">
+    <div className="w-80 h-screen border-r border-border flex flex-col">
       <div className="p-4 border-b border-border">
-        <h2 className="text-xl font-semibold">Personal</h2>
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <input
+            type="text"
+            placeholder="Search notes..."
+            className="w-full pl-10 pr-4 py-2 text-sm bg-accent/50 rounded-lg border-none focus:ring-2 focus:ring-ring"
+          />
+        </div>
       </div>
-      <div className="divide-y divide-border">
+      <div className="flex-1 overflow-auto divide-y divide-border">
         <NoteItem
-          title="My Goals for the Next Year"
-          date="31/12/2022"
-          excerpt="As the year comes to a ..."
-        />
-        <NoteItem
-          title="Reflection on the Month of June"
+          title="Getting Started with Proportion"
           date="21/06/2022"
-          excerpt="It's hard to believe that ..."
+          excerpt="Welcome to Proportion! This is your first note..."
           active
         />
         <NoteItem
-          title="My Favorite Memories from Childhood"
-          date="11/04/2022"
-          excerpt="I was reminiscing about ..."
+          title="Project Ideas"
+          date="20/06/2022"
+          excerpt="Here are some project ideas for the upcoming..."
         />
         <NoteItem
-          title="Reflections on My First Year of College"
-          date="08/04/2022"
-          excerpt="It's hard to believe that ..."
+          title="Meeting Notes"
+          date="19/06/2022"
+          excerpt="Team sync discussion about the new features..."
         />
         <NoteItem
-          title="My Experience with Meditation"
-          date="24/03/2022"
-          excerpt="I've been trying to ..."
-        />
-        <NoteItem
-          title="Thoughts on the Pandemic"
-          date="01/02/2021"
-          excerpt="It's hard to believe that ..."
-        />
-        <NoteItem
-          title="My Favorite Recipes"
-          date="08/01/2021"
-          excerpt="I love cooking and trying ..."
+          title="Reading List"
+          date="18/06/2022"
+          excerpt="Books and articles I want to read this month..."
         />
       </div>
     </div>

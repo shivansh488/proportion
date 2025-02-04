@@ -7,8 +7,11 @@ import {
   Plus,
   Star,
   Trash2,
-  Archive
+  Archive,
+  Moon,
+  Sun
 } from "lucide-react";
+import { useTheme } from "next-themes";
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -33,38 +36,49 @@ const SidebarItem = ({ icon, label, active, onClick }: SidebarItemProps) => (
 );
 
 export function NoteSidebar() {
+  const { theme, setTheme } = useTheme();
+
   return (
     <nav className="w-64 h-screen bg-sidebar flex flex-col border-r border-sidebar-border">
       <div className="p-4">
-        <h1 className="text-2xl font-bold text-sidebar-foreground mb-6">Nowted</h1>
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-2xl font-bold text-sidebar-foreground">Proportion</h1>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          >
+            {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
+          </Button>
+        </div>
         <Button className="w-full justify-start gap-2 mb-6">
           <Plus size={16} />
-          New Note
+          New Page
         </Button>
       </div>
 
       <div className="px-4 mb-4">
-        <h2 className="text-sm font-semibold text-sidebar-foreground mb-2">Recents</h2>
+        <h2 className="text-sm font-semibold text-sidebar-foreground mb-2">Quick Access</h2>
         <div className="space-y-1">
           <SidebarItem
             icon={<FileText size={16} />}
-            label="Reflection on the Month of June"
+            label="Getting Started"
             active
           />
           <SidebarItem
             icon={<FileText size={16} />}
-            label="Project proposal"
+            label="Tasks"
           />
           <SidebarItem
             icon={<FileText size={16} />}
-            label="Travel itinerary"
+            label="Projects"
           />
         </div>
       </div>
 
       <div className="px-4 mb-4">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-sm font-semibold text-sidebar-foreground">Folders</h2>
+          <h2 className="text-sm font-semibold text-sidebar-foreground">Workspaces</h2>
           <Button variant="ghost" size="icon" className="h-6 w-6">
             <Plus size={16} />
           </Button>
@@ -80,33 +94,25 @@ export function NoteSidebar() {
           />
           <SidebarItem
             icon={<FolderClosed size={16} />}
-            label="Travel"
-          />
-          <SidebarItem
-            icon={<FolderClosed size={16} />}
-            label="Events"
-          />
-          <SidebarItem
-            icon={<FolderClosed size={16} />}
-            label="Finances"
+            label="Projects"
           />
         </div>
       </div>
 
       <div className="px-4 mt-auto mb-4">
-        <h2 className="text-sm font-semibold text-sidebar-foreground mb-2">More</h2>
+        <h2 className="text-sm font-semibold text-sidebar-foreground mb-2">Tools</h2>
         <div className="space-y-1">
           <SidebarItem
             icon={<Star size={16} />}
             label="Favorites"
           />
           <SidebarItem
-            icon={<Trash2 size={16} />}
-            label="Trash"
+            icon={<Archive size={16} />}
+            label="Archive"
           />
           <SidebarItem
-            icon={<Archive size={16} />}
-            label="Archived Notes"
+            icon={<Trash2 size={16} />}
+            label="Trash"
           />
         </div>
       </div>
