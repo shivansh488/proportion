@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Folder, Bold, Italic, List, ListOrdered, Code } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
+import { CodeBlock } from "./CodeBlock";
+import { AISuggestions } from "./AISuggestions";
 
 export function NoteContent() {
   const editor = useEditor({
@@ -27,6 +29,8 @@ export function NoteContent() {
         <li>Press Ctrl/Cmd + / for keyboard shortcuts</li>
         <li>Drag and drop to organize your notes</li>
       </ul>
+
+      <h2>🧪 Try Code Execution</h2>
     `,
     editorProps: {
       attributes: {
@@ -40,7 +44,7 @@ export function NoteContent() {
   }
 
   return (
-    <article className="flex-1 h-screen overflow-auto bg-background">
+    <article className="flex-1 h-screen overflow-auto bg-background relative">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="space-y-8">
           <div className="flex items-center justify-between">
@@ -102,8 +106,17 @@ export function NoteContent() {
           </div>
 
           <EditorContent editor={editor} />
+
+          <CodeBlock
+            language="python"
+            code={`print("Hello, World!")
+# Try running this code!
+for i in range(5):
+    print(f"Count: {i}")`}
+          />
         </div>
       </div>
+      <AISuggestions />
     </article>
   );
 }
