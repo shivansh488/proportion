@@ -27,9 +27,10 @@ export function useSpotifyPlayer() {
         const { data: tokenData, error: tokenError } = await supabase
           .from('spotify_tokens')
           .select('access_token')
-          .single()
+          .maybeSingle()
 
-        if (tokenError || !tokenData) throw new Error('No access token found')
+        if (tokenError) throw new Error('Error fetching token')
+        if (!tokenData) throw new Error('No access token found')
 
         const player = new window.Spotify.Player({
           name: 'Web Playback SDK',

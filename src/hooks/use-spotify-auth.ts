@@ -16,7 +16,7 @@ export function useSpotifyAuth() {
       const { data, error } = await supabase
         .from('spotify_tokens')
         .select('*')
-        .single()
+        .maybeSingle()
 
       if (error) throw error
       setIsAuthenticated(!!data)
