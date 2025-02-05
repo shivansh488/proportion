@@ -1,25 +1,39 @@
-import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Play, Pause, SkipForward, SkipBack, Volume2 } from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { useToast } from "@/hooks/use-toast";
+import { useSpotifyAuth } from "@/hooks/use-spotify-auth";
+import { useSpotifyPlayer } from "@/hooks/use-spotify-player";
 
 export function SpotifyPlayer() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTrack, setCurrentTrack] = useState({
-    name: "Not Playing",
-    artist: "No Artist",
-    albumArt: "/placeholder.svg"
-  });
   const { toast } = useToast();
+  const { isAuthenticated, isLoading, connectSpotify } = useSpotifyAuth();
+  const {
+    isReady,
+    currentTrack,
+    isPlaying,
+    togglePlay,
+    nextTrack,
+    previousTrack,
+  } = useSpotifyPlayer();
 
-  const handlePlayPause = () => {
-    setIsPlaying(!isPlaying);
-    toast({
-      title: "Spotify Integration",
-      description: "This is a demo. Connect your Spotify account to enable music control.",
-    });
-  };
+  if (isLoading) {
+    return <div className="p-4 text-center">Loading...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <div className="p-4 text-center">
+        <Button onClick={connectSpotify}>
+          Connect Spotify
+        </Button>
+      </div>
+    );
+  }
+
+  if (!isReady) {
+    return <div className="p-4 text-center">Initializing player...</div>;
+  }
 
   return (
     <div className="p-4 border-t border-sidebar-border">
@@ -42,10 +56,7 @@ export function SpotifyPlayer() {
           variant="ghost" 
           size="icon" 
           className="h-8 w-8"
-          onClick={() => toast({
-            title: "Previous Track",
-            description: "Demo: Previous track button pressed",
-          })}
+          onClick={previousTrack}
         >
           <SkipBack className="h-4 w-4" />
         </Button>
@@ -54,7 +65,7 @@ export function SpotifyPlayer() {
           variant="ghost" 
           size="icon" 
           className="h-8 w-8"
-          onClick={handlePlayPause}
+          onClick={togglePlay}
         >
           {isPlaying ? (
             <Pause className="h-4 w-4" />
@@ -67,10 +78,7 @@ export function SpotifyPlayer() {
           variant="ghost" 
           size="icon" 
           className="h-8 w-8"
-          onClick={() => toast({
-            title: "Next Track",
-            description: "Demo: Next track button pressed",
-          })}
+          onClick={nextTrack}
         >
           <SkipForward className="h-4 w-4" />
         </Button>
@@ -86,7 +94,7 @@ export function SpotifyPlayer() {
           onValueChange={(value) => {
             toast({
               title: "Volume Changed",
-              description: `Demo: Volume set to ${value}%`,
+              description: `Volume set to ${value}%`,
             });
           }}
         />
