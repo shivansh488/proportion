@@ -21,30 +21,66 @@ const Auth = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  const validatePassword = (password: string) => {
+    return password.length >= 6;
+  };
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
+    if (!validatePassword(password)) {
+      toast({
+        title: "Invalid Password",
+        description: "Password must be at least 6 characters long",
+        variant: "destructive",
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
-      const { error } = isSignUp
-        ? await supabase.auth.signUp({
-            email,
-            password,
-          })
-        : await supabase.auth.signInWithPassword({
-            email,
-            password,
-          });
-
-      if (error) throw error;
-
       if (isSignUp) {
-        toast({
-          title: "Success!",
-          description: "Please check your email to verify your account.",
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
         });
+
+        if (error) {
+          if (error.message.includes("User already registered")) {
+            toast({
+              title: "Account Exists",
+              description: "This email is already registered. Please sign in instead.",
+              variant: "destructive",
+            });
+          } else {
+            throw error;
+          }
+        } else {
+          toast({
+            title: "Success!",
+            description: "Please check your email to verify your account.",
+          });
+        }
       } else {
-        navigate("/");
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+
+        if (error) {
+          if (error.message.includes("Invalid login credentials")) {
+            toast({
+              title: "Login Failed",
+              description: "Invalid email or password. If you haven't verified your email, please check your inbox.",
+              variant: "destructive",
+            });
+          } else {
+            throw error;
+          }
+        } else {
+          navigate("/");
+        }
       }
     } catch (error) {
       toast({
@@ -80,10 +116,11 @@ const Auth = () => {
               />
               <Input
                 type="password"
-                placeholder="Password"
+                placeholder="Password (min. 6 characters)"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                minLength={6}
               />
             </div>
             <Button type="submit" className="w-full" disabled={loading}>
