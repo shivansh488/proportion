@@ -35,3 +35,16 @@ export async function createNote() {
 
   return data;
 }
+
+export async function getNotes() {
+  const { data, error } = await supabase
+    .from('notes')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}

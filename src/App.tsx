@@ -32,6 +32,30 @@ const App = () => (
                     </ProtectedRoute>
                   }
                 />
+                <Route
+                  path="/notes"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/notes/:id"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/search"
+                  element={
+                    <ProtectedRoute>
+                      <Index />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
@@ -43,4 +67,3 @@ const App = () => (
 );
 
 export default App;
-
