@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Calendar, Folder, Bold, Italic, List, ListOrdered, Code, FileCode } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -47,9 +46,15 @@ export function NoteContent() {
     const defaultCode = `print("Hello, World!")
 # Add your code here`;
     
-    editor?.chain().focus().insertContent({
-      type: 'codeBlock',
-      content: defaultCode,
+    editor?.chain().focus().setContent({
+      type: 'doc',
+      content: [{
+        type: 'codeBlock',
+        content: [{
+          type: 'text',
+          text: defaultCode
+        }]
+      }]
     }).run();
 
     toast({
@@ -140,9 +145,8 @@ export function NoteContent() {
 for i in range(5):
     print(f"Count: {i}")`}
           />
-        </div>
-      </div>
-      <AISuggestions editorContent={editor.getHTML()} />
+
+          <AISuggestions editorContent={editor.getHTML()} />
     </article>
   );
 }

@@ -4,17 +4,26 @@ import { Moon, Sun, Settings, Plus, Home, Search, FolderOpen, FileCode } from "l
 import { useTheme } from "next-themes";
 import { SpotifyPlayer } from "@/components/spotify/SpotifyPlayer";
 import { useToast } from "@/components/ui/use-toast";
+import { createNote } from "@/utils/notes";
 
 export function NoteSidebar() {
   const { theme, setTheme } = useTheme();
   const { toast } = useToast();
 
-  const handleNewPage = () => {
-    // For now, we'll just show a toast since we need to implement the full functionality
-    toast({
-      title: "New page created",
-      description: "A new blank note has been created.",
-    });
+  const handleNewPage = async () => {
+    try {
+      await createNote();
+      toast({
+        title: "Success",
+        description: "A new note has been created.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to create new note. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
