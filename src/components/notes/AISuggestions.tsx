@@ -1,30 +1,40 @@
+
 import { useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Sparkles, X } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
-export function AISuggestions() {
+export function AISuggestions({ editorContent }: { editorContent?: string }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
   const generateSuggestions = async () => {
+    if (!editorContent) {
+      toast({
+        title: "No content",
+        description: "Please add some content to your note first.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
-      // Mock AI suggestions for demo
-      // In production, this would connect to an AI API
-      setTimeout(() => {
-        setSuggestions([
-          "Add a section about project timeline",
-          "Include some code examples",
-          "Consider adding a table of contents"
-        ]);
-        toast({
-          title: "Suggestions generated",
-          description: "AI has analyzed your note and provided suggestions.",
-        });
-      }, 1000);
+      const { data, error } = await supabase.functions.invoke('generate-suggestions', {
+        body: { content: editorContent }
+      });
+
+      if (error) throw error;
+
+      setSuggestions(data.suggestions);
+      toast({
+        title: "Suggestions generated",
+        description: "AI has analyzed your note and provided suggestions.",
+      });
     } catch (error) {
+      console.error('Error generating suggestions:', error);
       toast({
         title: "Error generating suggestions",
         description: "Failed to generate AI suggestions. Please try again.",
@@ -43,7 +53,7 @@ export function AISuggestions() {
         className="mb-2 w-full gap-2"
       >
         <Sparkles className="h-4 w-4" />
-        Get AI Suggestions
+        {isLoading ? 'Generating...' : 'Get AI Suggestions'}
       </Button>
       {suggestions.length > 0 && (
         <div className="bg-card rounded-lg border border-border p-4 shadow-lg">

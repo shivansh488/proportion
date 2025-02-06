@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Calendar, Folder, Bold, Italic, List, ListOrdered, Code } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -116,7 +117,7 @@ for i in range(5):
           />
         </div>
       </div>
-      <AISuggestions />
+      <AISuggestions editorContent={editor.getHTML()} />
     </article>
   );
 }
