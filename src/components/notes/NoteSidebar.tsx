@@ -1,10 +1,21 @@
+
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Settings, Plus, Home, Search, FolderOpen } from "lucide-react";
+import { Moon, Sun, Settings, Plus, Home, Search, FolderOpen, FileCode } from "lucide-react";
 import { useTheme } from "next-themes";
 import { SpotifyPlayer } from "@/components/spotify/SpotifyPlayer";
+import { useToast } from "@/components/ui/use-toast";
 
 export function NoteSidebar() {
   const { theme, setTheme } = useTheme();
+  const { toast } = useToast();
+
+  const handleNewPage = () => {
+    // For now, we'll just show a toast since we need to implement the full functionality
+    toast({
+      title: "New page created",
+      description: "A new blank note has been created.",
+    });
+  };
 
   return (
     <div className="w-64 h-screen bg-sidebar border-r border-border flex flex-col">
@@ -23,7 +34,7 @@ export function NoteSidebar() {
             )}
           </Button>
         </div>
-        <Button className="w-full justify-start" variant="secondary">
+        <Button className="w-full justify-start" variant="secondary" onClick={handleNewPage}>
           <Plus className="mr-2 h-4 w-4" />
           New Page
         </Button>

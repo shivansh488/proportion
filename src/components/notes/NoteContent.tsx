@@ -1,12 +1,15 @@
 
 import { Button } from "@/components/ui/button";
-import { Calendar, Folder, Bold, Italic, List, ListOrdered, Code } from "lucide-react";
+import { Calendar, Folder, Bold, Italic, List, ListOrdered, Code, FileCode } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import { CodeBlock } from "./CodeBlock";
 import { AISuggestions } from "./AISuggestions";
+import { useToast } from "@/components/ui/use-toast";
 
 export function NoteContent() {
+  const { toast } = useToast();
+  
   const editor = useEditor({
     extensions: [
       StarterKit,
@@ -39,6 +42,21 @@ export function NoteContent() {
       },
     },
   });
+
+  const insertCodeBlock = () => {
+    const defaultCode = `print("Hello, World!")
+# Add your code here`;
+    
+    editor?.chain().focus().insertContent({
+      type: 'codeBlock',
+      content: defaultCode,
+    }).run();
+
+    toast({
+      title: "Code block inserted",
+      description: "A new code block has been added to your note.",
+    });
+  };
 
   if (!editor) {
     return null;
@@ -102,6 +120,13 @@ export function NoteContent() {
                 className={editor.isActive('codeBlock') ? 'bg-accent' : ''}
               >
                 <Code className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={insertCodeBlock}
+              >
+                <FileCode className="h-4 w-4" />
               </Button>
             </div>
           </div>
