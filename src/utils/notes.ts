@@ -22,8 +22,8 @@ export async function createNote() {
   const { data, error } = await supabase
     .from('notes')
     .insert({
-      title: 'Untitled',
-      content: `<h1>Untitled</h1><p>Start writing your note here...</p>`,
+      title: 'New Note',
+      content: `<h1>New Note</h1><p>Start writing your note here...</p>`,
       user_id: user.id
     })
     .select()
@@ -41,6 +41,21 @@ export async function getNotes() {
     .from('notes')
     .select('*')
     .order('created_at', { ascending: false });
+
+  if (error) {
+    throw error;
+  }
+
+  return data;
+}
+
+export async function updateNote(id: string, updates: Partial<Note>) {
+  const { data, error } = await supabase
+    .from('notes')
+    .update(updates)
+    .eq('id', id)
+    .select()
+    .single();
 
   if (error) {
     throw error;

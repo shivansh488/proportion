@@ -6,40 +6,57 @@ import StarterKit from '@tiptap/starter-kit';
 import { CodeBlock } from "./CodeBlock";
 import { AISuggestions } from "./AISuggestions";
 import { useToast } from "@/components/ui/use-toast";
+import { useParams } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { Note } from "@/utils/notes";
+import { supabase } from "@/integrations/supabase/client";
 
 export function NoteContent() {
   const { toast } = useToast();
+  const { id: noteId } = useParams();
+  
+  const { data: note } = useQuery<Note>({
+    queryKey: ['note', noteId],
+    queryFn: async () => {
+      if (!noteId) return null;
+      const { data, error } = await supabase
+        .from('notes')
+        .select('*')
+        .eq('id', noteId)
+        .single();
+      
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!noteId
+  });
   
   const editor = useEditor({
     extensions: [
       StarterKit,
     ],
-    content: `
-      <h1>Getting Started with Proportion</h1>
-      <p>Welcome to Proportion! This is your first note. Click anywhere and start typing...</p>
-      
-      <h2>🚀 Quick Features</h2>
-      <ul>
-        <li>Rich text editing with markdown support</li>
-        <li>Code execution for multiple languages</li>
-        <li>Spotify integration while you work</li>
-        <li>AI-powered note suggestions</li>
-        <li>Real-time collaboration</li>
-      </ul>
-
-      <h2>💡 Pro Tips</h2>
-      <ul>
-        <li>Use "/" to access the command menu</li>
-        <li>Press Ctrl/Cmd + / for keyboard shortcuts</li>
-        <li>Drag and drop to organize your notes</li>
-      </ul>
-
-      <h2>🧪 Try Code Execution</h2>
-    `,
+    content: note?.content || `<h1>New Note</h1><p>Start writing...</p>`,
     editorProps: {
       attributes: {
         class: 'prose prose-sm max-w-none focus:outline-none',
       },
+    },
+    onUpdate: async ({ editor }) => {
+      if (!noteId) return;
+      
+      const content = editor.getHTML();
+      const { error } = await supabase
+        .from('notes')
+        .update({ content, updated_at: new Date().toISOString() })
+        .eq('id', noteId);
+      
+      if (error) {
+        toast({
+          title: "Error",
+          description: "Failed to save note.",
+          variant: "destructive",
+        });
+      }
     },
   });
 
@@ -76,7 +93,7 @@ export function NoteContent() {
             <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <Calendar className="h-4 w-4" />
-                <span>21/06/2022</span>
+                <span>{note ? new Date(note.created_at).toLocaleDateString() : 'New Note'}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Folder className="h-4 w-4" />
@@ -139,15 +156,19 @@ export function NoteContent() {
 
           <EditorContent editor={editor} />
 
-          <CodeBlock
-            language="python"
-            code={`print("Hello, World!")
+          {!noteId && (
+            <>
+              <CodeBlock
+                language="python"
+                code={`print("Hello, World!")
 # Try running this code!
 for i in range(5):
     print(f"Count: {i}")`}
-          />
+              />
 
-          <AISuggestions editorContent={editor.getHTML()} />
+              <AISuggestions editorContent={editor.getHTML()} />
+            </>
+          )}
         </div>
       </div>
     </article>
