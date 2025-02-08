@@ -1,7 +1,12 @@
+
 import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { getNotes } from "@/utils/notes";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface NoteItemProps {
+  id: string;
   title: string;
   date: string;
   excerpt: string;
@@ -19,13 +24,27 @@ const NoteItem = ({ title, date, excerpt, active, onClick }: NoteItemProps) => (
   >
     <h3 className="font-medium mb-1">{title}</h3>
     <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
-      <span>{date}</span>
+      <span>{new Date(date).toLocaleDateString()}</span>
     </div>
     <p className="text-sm text-muted-foreground truncate">{excerpt}</p>
   </button>
 );
 
 export function NoteList() {
+  const navigate = useNavigate();
+  const { id: currentNoteId } = useParams();
+
+  const { data: notes } = useQuery({
+    queryKey: ['notes'],
+    queryFn: getNotes,
+  });
+
+  // Function to extract text content from HTML string
+  const extractTextFromHtml = (html: string) => {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    return doc.body.textContent || '';
+  };
+
   return (
     <div className="w-80 h-screen border-r border-border flex flex-col">
       <div className="p-4 border-b border-border">
@@ -39,27 +58,17 @@ export function NoteList() {
         </div>
       </div>
       <div className="flex-1 overflow-auto divide-y divide-border">
-        <NoteItem
-          title="Getting Started with Proportion"
-          date="21/06/2022"
-          excerpt="Welcome to Proportion! This is your first note..."
-          active
-        />
-        <NoteItem
-          title="Project Ideas"
-          date="20/06/2022"
-          excerpt="Here are some project ideas for the upcoming..."
-        />
-        <NoteItem
-          title="Meeting Notes"
-          date="19/06/2022"
-          excerpt="Team sync discussion about the new features..."
-        />
-        <NoteItem
-          title="Reading List"
-          date="18/06/2022"
-          excerpt="Books and articles I want to read this month..."
-        />
+        {notes?.map((note) => (
+          <NoteItem
+            key={note.id}
+            id={note.id}
+            title={note.title}
+            date={note.created_at}
+            excerpt={extractTextFromHtml(note.content)}
+            active={currentNoteId === note.id}
+            onClick={() => navigate(`/notes/${note.id}`)}
+          />
+        ))}
       </div>
     </div>
   );
