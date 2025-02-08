@@ -25,13 +25,14 @@ export function CodeBlock({ code: initialCode, language, onChange, onExit }: Cod
       if (onExit) {
         onExit();
       }
+      // Move focus away from textarea
+      textareaRef.current?.blur();
     } else if (e.key === 'Tab') {
       e.preventDefault();
       const start = e.currentTarget.selectionStart;
       const end = e.currentTarget.selectionEnd;
       const newCode = code.substring(0, start) + '  ' + code.substring(end);
       setCode(newCode);
-      // Set cursor position after timeout to ensure state is updated
       setTimeout(() => {
         if (textareaRef.current) {
           textareaRef.current.selectionStart = textareaRef.current.selectionEnd = start + 2;
@@ -50,34 +51,50 @@ export function CodeBlock({ code: initialCode, language, onChange, onExit }: Cod
 
   const executeCode = async () => {
     setIsRunning(true);
+    setOutput(""); // Clear previous output
+    
     try {
       // Mock execution for different languages
       let mockOutput = '';
+      const executionDelay = 500; // Simulate execution time
+      
+      await new Promise(resolve => setTimeout(resolve, executionDelay));
+      
       switch (language.toLowerCase()) {
         case 'python':
-          mockOutput = `Python Output:\n${code}\n\nOutput: Hello from Python!`;
+          // Simple Python code execution simulation
+          const pythonLines = code.split('\n').filter(line => line.trim());
+          mockOutput = pythonLines.map(line => {
+            if (line.startsWith('print')) {
+              return line.substring(6, line.length - 1); // Extract content inside print()
+            }
+            return `Executed: ${line}`;
+          }).join('\n');
           break;
+          
         case 'java':
-          mockOutput = `Java Output:\n${code}\n\nOutput: Hello from Java!`;
+          mockOutput = `Java Output:\n${code}\n\nProgram executed successfully!\nOutput:\nHello from Java!`;
           break;
+          
         case 'c++':
-          mockOutput = `C++ Output:\n${code}\n\nOutput: Hello from C++!`;
+          mockOutput = `C++ Output:\n${code}\n\nCompilation successful!\nOutput:\nHello from C++!`;
           break;
+          
         case 'c':
-          mockOutput = `C Output:\n${code}\n\nOutput: Hello from C!`;
+          mockOutput = `C Output:\n${code}\n\nCompilation successful!\nOutput:\nHello from C!`;
           break;
+          
         default:
           mockOutput = `Executed ${language} code:\n${code}\n\nOutput: Hello, World!`;
       }
       
-      setTimeout(() => {
-        setOutput(mockOutput);
-        toast({
-          title: "Code executed successfully",
-          description: "Your code has been run and the output is displayed below.",
-        });
-      }, 1000);
+      setOutput(mockOutput);
+      toast({
+        title: "Code executed successfully",
+        description: "Your code has been run and the output is displayed below.",
+      });
     } catch (error) {
+      setOutput("Error executing code");
       toast({
         title: "Error executing code",
         description: "There was an error running your code. Please try again.",
@@ -108,15 +125,15 @@ export function CodeBlock({ code: initialCode, language, onChange, onExit }: Cod
           value={code}
           onChange={handleCodeChange}
           onKeyDown={handleKeyDown}
-          className="w-full bg-transparent outline-none font-mono text-sm"
-          rows={code.split('\n').length}
+          className="w-full min-h-[100px] bg-transparent outline-none font-mono text-sm"
+          rows={Math.max(code.split('\n').length, 3)}
           spellCheck={false}
         />
       </div>
       {output && (
         <div className="p-4 border-t border-border bg-background">
           <h4 className="text-sm font-medium mb-2">Output:</h4>
-          <pre className="text-sm text-muted-foreground whitespace-pre-wrap">
+          <pre className="text-sm text-muted-foreground whitespace-pre-wrap bg-accent/20 p-3 rounded-md">
             {output}
           </pre>
         </div>
