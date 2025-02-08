@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Calendar, Folder, Bold, Italic, List, ListOrdered, Code, FileCode } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -9,6 +10,8 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Note } from "@/utils/notes";
 import { supabase } from "@/integrations/supabase/client";
+import { useState } from "react"; // Added this import
+import { LanguageSelector } from "./LanguageSelector";
 
 export function NoteContent() {
   const { toast } = useToast();
