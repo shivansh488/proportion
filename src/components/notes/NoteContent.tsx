@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Calendar, Folder, Bold, Italic, List, ListOrdered, Code, FileCode } from "lucide-react";
 import { useEditor, EditorContent } from '@tiptap/react';
@@ -14,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function NoteContent() {
   const { toast } = useToast();
   const { id: noteId } = useParams();
+  const [showLanguageSelector, setShowLanguageSelector] = useState(false);
   
   const { data: note } = useQuery<Note>({
     queryKey: ['note', noteId],
@@ -60,14 +60,22 @@ export function NoteContent() {
     },
   });
 
-  const insertCodeBlock = () => {
-    const defaultCode = `print("Hello, World!")
-# Add your code here`;
+  const insertCodeBlock = (language: string) => {
+    const defaultCode = language === 'python' 
+      ? 'print("Hello, World!")\n# Add your code here'
+      : language === 'java'
+      ? 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}'
+      : language === 'c++'
+      ? '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}'
+      : language === 'c'
+      ? '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}'
+      : '// Add your code here';
     
     editor?.chain().focus().setContent({
       type: 'doc',
       content: [{
         type: 'codeBlock',
+        attrs: { language },
         content: [{
           type: 'text',
           text: defaultCode
@@ -77,8 +85,12 @@ export function NoteContent() {
 
     toast({
       title: "Code block inserted",
-      description: "A new code block has been added to your note.",
+      description: `A new ${language} code block has been added to your note.`,
     });
+  };
+
+  const handleAddCodeBlock = () => {
+    setShowLanguageSelector(true);
   };
 
   if (!editor) {
@@ -147,7 +159,7 @@ export function NoteContent() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={insertCodeBlock}
+                onClick={handleAddCodeBlock}
               >
                 <FileCode className="h-4 w-4" />
               </Button>
