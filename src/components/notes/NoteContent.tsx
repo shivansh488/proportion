@@ -10,7 +10,7 @@ import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { Note } from "@/utils/notes";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react"; // Added this import
+import { useState } from "react";
 import { LanguageSelector } from "./LanguageSelector";
 
 export function NoteContent() {
@@ -186,6 +186,12 @@ for i in range(5):
           )}
         </div>
       </div>
+
+      <LanguageSelector
+        open={showLanguageSelector}
+        onClose={() => setShowLanguageSelector(false)}
+        onSelect={insertCodeBlock}
+      />
     </article>
   );
 }

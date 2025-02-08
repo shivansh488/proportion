@@ -21,6 +21,7 @@ export function CodeBlock({ code: initialCode, language, onChange, onExit }: Cod
   const handleKeyDown = (e: KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault();
+      executeCode();
       if (onExit) {
         onExit();
       }
