@@ -1,10 +1,10 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.4'
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 
-const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
-const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!
-const SPOTIFY_CLIENT_ID = Deno.env.get('SPOTIFY_CLIENT_ID')!
-const SPOTIFY_CLIENT_SECRET = Deno.env.get('SPOTIFY_CLIENT_SECRET')!
+const SUPABASE_URL = Deno.env.get('https://znmeyumbgnsffshdrbie.supabase.co')!
+const SUPABASE_ANON_KEY = Deno.env.get('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InpubWV5dW1iZ25zZmZzaGRyYmllIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mzg3NzU2NTIsImV4cCI6MjA1NDM1MTY1Mn0.TX26z7SLYOR1hljo8p3ANtDUAOBallps5VGOA-Rka34')!
+const SPOTIFY_CLIENT_ID = Deno.env.get('da0e90add8fc45faa250909cf3e1a589')!
+const SPOTIFY_CLIENT_SECRET = Deno.env.get('87f24ae18b2848adbe55bc85d6d22756')!
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
