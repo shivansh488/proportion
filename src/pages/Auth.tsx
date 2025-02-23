@@ -12,6 +12,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { useAuth } from "@/contexts/auth";
+import { useEffect } from "react";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -20,6 +22,14 @@ const Auth = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
+
+  // Redirect if already authenticated
+  useEffect(() => {
+    if (user) {
+      navigate("/");
+    }
+  }, [user, navigate]);
 
   const validatePassword = (password: string) => {
     return password.length >= 6;
@@ -29,21 +39,23 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
-    if (!validatePassword(password)) {
-      toast({
-        title: "Invalid Password",
-        description: "Password must be at least 6 characters long",
-        variant: "destructive",
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
+      if (!validatePassword(password)) {
+        toast({
+          title: "Invalid Password",
+          description: "Password must be at least 6 characters long",
+          variant: "destructive",
+        });
+        return;
+      }
+
       if (isSignUp) {
         const { error } = await supabase.auth.signUp({
           email,
           password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
         });
 
         if (error) {
