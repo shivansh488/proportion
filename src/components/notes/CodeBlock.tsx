@@ -1,7 +1,7 @@
 
 import { useState, useRef, KeyboardEvent } from 'react';
 import { Button } from "@/components/ui/button";
-import { Play } from "lucide-react";
+import { Play, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface CodeBlockProps {
@@ -9,9 +9,10 @@ interface CodeBlockProps {
   language: string;
   onChange?: (code: string) => void;
   onExit?: () => void;
+  onDelete?: () => void;
 }
 
-export function CodeBlock({ code: initialCode, language, onChange, onExit }: CodeBlockProps) {
+export function CodeBlock({ code: initialCode, language, onChange, onExit, onDelete }: CodeBlockProps) {
   const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState<string>("");
   const [isRunning, setIsRunning] = useState(false);
@@ -46,6 +47,12 @@ export function CodeBlock({ code: initialCode, language, onChange, onExit }: Cod
     setCode(newCode);
     if (onChange) {
       onChange(newCode);
+    }
+  };
+
+  const handleDelete = () => {
+    if (onDelete) {
+      onDelete();
     }
   };
 
@@ -109,15 +116,26 @@ export function CodeBlock({ code: initialCode, language, onChange, onExit }: Cod
     <div className="my-4 rounded-lg border border-border">
       <div className="flex items-center justify-between bg-accent/50 px-4 py-2 rounded-t-lg">
         <span className="text-sm font-medium">{language}</span>
-        <Button
-          size="sm"
-          onClick={executeCode}
-          disabled={isRunning}
-          className="gap-2"
-        >
-          <Play className="h-4 w-4" />
-          Run
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            onClick={executeCode}
+            disabled={isRunning}
+            className="gap-2"
+          >
+            <Play className="h-4 w-4" />
+            Run
+          </Button>
+          <Button
+            size="sm"
+            variant="destructive"
+            onClick={handleDelete}
+            className="gap-2"
+          >
+            <Trash2 className="h-4 w-4" />
+            Delete
+          </Button>
+        </div>
       </div>
       <div className="p-4 bg-accent/20">
         <textarea
