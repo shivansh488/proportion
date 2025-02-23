@@ -23,6 +23,7 @@ export function NoteContent() {
   const { toast } = useToast();
   const { id: noteId } = useParams();
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
+  const [codeBlocks, setCodeBlocks] = useState<Array<{ id: string; language: string; code: string }>>([]);
   
   const { data: note } = useQuery<Note>({
     queryKey: ['note', noteId],
@@ -80,17 +81,14 @@ export function NoteContent() {
       ? '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}'
       : '// Add your code here';
     
-    editor?.chain().focus().setContent({
-      type: 'doc',
-      content: [{
-        type: 'codeBlock',
-        attrs: { language },
-        content: [{
-          type: 'text',
-          text: defaultCode
-        }]
-      }]
-    }).run();
+    const newCodeBlock = {
+      id: Math.random().toString(36).substr(2, 9),
+      language,
+      code: defaultCode
+    };
+    
+    setCodeBlocks(prev => [...prev, newCodeBlock]);
+    setShowLanguageSelector(false);
 
     toast({
       title: "Block inserted",
@@ -98,39 +96,18 @@ export function NoteContent() {
     });
   };
 
-  const insertBlock = (type: string) => {
-    if (!editor) return;
-
-    switch (type) {
-      case 'text':
-        editor.chain().focus().setParagraph().run();
-        break;
-      case 'heading1':
-        editor.chain().focus().setHeading({ level: 1 }).run();
-        break;
-      case 'heading2':
-        editor.chain().focus().setHeading({ level: 2 }).run();
-        break;
-      case 'heading3':
-        editor.chain().focus().setHeading({ level: 3 }).run();
-        break;
-      case 'bulletList':
-        editor.chain().focus().toggleBulletList().run();
-        break;
-      case 'orderedList':
-        editor.chain().focus().toggleOrderedList().run();
-        break;
-      case 'code':
-        setShowLanguageSelector(true);
-        break;
-      default:
-        break;
-    }
-
+  const handleDeleteCodeBlock = (blockId: string) => {
+    setCodeBlocks(prev => prev.filter(block => block.id !== blockId));
     toast({
-      title: "Block inserted",
-      description: `A new ${type} block has been added.`,
+      title: "Block deleted",
+      description: "The code block has been removed.",
     });
+  };
+
+  const handleCodeChange = (blockId: string, newCode: string) => {
+    setCodeBlocks(prev => prev.map(block => 
+      block.id === blockId ? { ...block, code: newCode } : block
+    ));
   };
 
   if (!editor) {
@@ -240,6 +217,16 @@ export function NoteContent() {
 
           <EditorContent editor={editor} />
 
+          {codeBlocks.map(block => (
+            <CodeBlock
+              key={block.id}
+              code={block.code}
+              language={block.language}
+              onChange={(newCode) => handleCodeChange(block.id, newCode)}
+              onDelete={() => handleDeleteCodeBlock(block.id)}
+            />
+          ))}
+
           {!noteId && (
             <>
               <CodeBlock
@@ -248,6 +235,7 @@ export function NoteContent() {
 # Try running this code!
 for i in range(5):
     print(f"Count: {i}")`}
+                onDelete={() => {}}
               />
 
               <AISuggestions editorContent={editor.getHTML()} />
