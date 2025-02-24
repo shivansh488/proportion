@@ -70,6 +70,43 @@ export function NoteContent() {
     },
   });
 
+  const insertBlock = (type: string) => {
+    if (!editor) return;
+
+    switch (type) {
+      case 'text':
+        editor.chain().focus().setParagraph().run();
+        break;
+      case 'heading1':
+        editor.chain().focus().setHeading({ level: 1 }).run();
+        break;
+      case 'heading2':
+        editor.chain().focus().setHeading({ level: 2 }).run();
+        break;
+      case 'heading3':
+        editor.chain().focus().setHeading({ level: 3 }).run();
+        break;
+      case 'bulletList':
+        editor.chain().focus().toggleBulletList().run();
+        break;
+      case 'orderedList':
+        editor.chain().focus().toggleOrderedList().run();
+        break;
+      case 'code':
+        setShowLanguageSelector(true);
+        break;
+      default:
+        break;
+    }
+
+    if (type !== 'code') {
+      toast({
+        title: "Block inserted",
+        description: `A new ${type} block has been added.`,
+      });
+    }
+  };
+
   const insertCodeBlock = (language: string) => {
     const defaultCode = language === 'python' 
       ? 'print("Hello, World!")\n# Add your code here'
