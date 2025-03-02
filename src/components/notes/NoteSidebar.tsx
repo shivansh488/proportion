@@ -2,7 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Moon, Sun, Settings, Plus, Home, Search, FolderOpen } from "lucide-react";
 import { useTheme } from "next-themes";
-import { SpotifyPlayer } from "@/components/spotify/SpotifyPlayer";
+import SpotifyPlayer from "../spotify/SpotifyPlayer";
 import { useToast } from "@/components/ui/use-toast";
 import { createNote, getNotes } from "@/utils/notes";
 import { useNavigate } from "react-router-dom";
@@ -93,8 +93,9 @@ export function NoteSidebar() {
           </Button>
         </nav>
       </div>
-
+      <div className="h-[50%] w-full  border-t border-border justify-center items-center flex">
       <SpotifyPlayer />
+      </div>
 
       <div className="p-4 border-t border-border">
         <Button variant="ghost" className="w-full justify-start">
