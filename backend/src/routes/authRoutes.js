@@ -14,7 +14,11 @@ router.get(
 // 🔹 Handle Spotify Callback
 router.get(
   "/spotify/callback",
-  passport.authenticate("spotify", { failureRedirect: "http://localhost:8080/login" }),
+  passport.authenticate("spotify", {
+    failureRedirect: "http://localhost:8080/login",
+    successRedirect: "http://localhost:8080/",
+    session: true,  // ✅ Ensure session is stored
+  }),
   (req, res) => {
     console.log("Session Data:", req.session); // ✅ Debug session
     res.redirect("http://localhost:8080/");
@@ -24,17 +28,31 @@ router.get(
 // 🔹 Get Logged-In User
 router.get("/user", (req, res) => {
   console.log("Session Data:", req.session);
-  if (req.isAuthenticated() && req.session.passport?.user) {
-    res.json({ accessToken: req.session.passport.user.accessToken });
+  
+
+  if (req.isAuthenticated()) {
+    console.log("User Data:", req.user); // ✅ Debug user data
+
+    res.json({ 
+      user: req.user, 
+      accessToken: req.user.accessToken 
+    });
   } else {
     res.status(401).json({ message: "Not authenticated" });
   }
 });
 
+
 // 🔹 Logout
-router.get("/logout", (req, res) => {
-  req.logout(() => {
-    res.redirect("http://localhost:8080/");
+router.post("/logout", (req, res) => {
+  req.logout((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Logout failed" });
+    }
+    req.session.destroy(() => {
+      res.clearCookie("connect.sid"); // Clear session cookie
+      return res.json({ message: "Logged out successfully" });
+    });
   });
 });
 
