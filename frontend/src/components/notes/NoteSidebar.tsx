@@ -93,7 +93,7 @@ export function NoteSidebar() {
           </Button>
         </nav>
       </div>
-      <div className="h-[50%] w-full  border-t border-border justify-center items-center flex">
+      <div className="h-[50%] w-full  p-2 flex flex-col justify-center">
       <SpotifyPlayer />
       </div>
 

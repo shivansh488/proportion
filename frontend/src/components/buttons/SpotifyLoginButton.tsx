@@ -233,11 +233,11 @@ const SpotifyPlayer = () => {
 
   // Play Selected Track
   const playTrack = async (trackUri) => {
-    if (!deviceId || !accessToken || !trackUri) {
+    if (!deviceId || !accessToken || !trackUri || !player) {
       console.error("Player is not ready or no track selected");
       return;
     }
-
+  
     try {
       setLoading(true);
       const response = await fetch("https://api.spotify.com/v1/me/player/play", {
@@ -251,13 +251,14 @@ const SpotifyPlayer = () => {
           device_id: deviceId,
         }),
       });
-
+  
       if (response.ok) {
         console.log("Playback started successfully");
         setIsPlaying(true);
         setShowMusicSelector(false); // Close the popup after selecting a track
       } else {
-        console.error("Failed to start playback:", await response.json());
+        const errorData = await response.json();
+        console.error("Failed to start playback:", errorData);
       }
     } catch (error) {
       console.error("Error in playback:", error);
@@ -361,7 +362,7 @@ const SpotifyPlayer = () => {
       {accessToken && (
       <button
         onClick={handleLogout}
-        className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-full transition flex items-center justify-center"
+        className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-2 rounded-full transition flex items-center justify-center"
       >
         Logout
       </button>

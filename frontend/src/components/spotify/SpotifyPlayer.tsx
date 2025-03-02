@@ -7,7 +7,7 @@ function SpotifyPlayer() {
    
     <div >
       
-      <div className="p-6 ">
+      <div >
         <SpotifyLoginButton />
       </div>
 
