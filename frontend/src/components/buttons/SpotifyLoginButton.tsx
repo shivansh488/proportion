@@ -1,5 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Play, Pause, SkipForward, SkipBack, Volume2, Loader, Music2, ListMusic, X, Search } from 'lucide-react';
+import { Music2 } from 'lucide-react';
+import PlayerControls from "../spotify_component/playerc_controls";
+import MusicSelector from "../spotify_component/music_selector";
+import LoginButton from "../spotify_component/login_button";
+import PremiumRequired from "../spotify_component/premium_required";
 
 const SpotifyPlayer = () => {
   const [accessToken, setAccessToken] = useState(null);
@@ -9,7 +13,7 @@ const SpotifyPlayer = () => {
   const [playlists, setPlaylists] = useState([]);
   const [selectedPlaylist, setSelectedPlaylist] = useState(null);
   const [tracks, setTracks] = useState([]);
-  const [searchTracks, setSearchTracks] = useState([]); // Separate state for search results
+  const [searchTracks, setSearchTracks] = useState([]);
   const [selectedTrack, setSelectedTrack] = useState(null);
   const [currentTrack, setCurrentTrack] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -40,7 +44,7 @@ const SpotifyPlayer = () => {
 
             setIsPremium(true);
             setAccessToken(data.accessToken);
-            fetchUserPlaylists(data.accessToken); // Fetch Playlists
+            fetchUserPlaylists(data.accessToken);
 
             if (!playerReady) {
               loadSpotifyPlayer(data.accessToken);
@@ -216,7 +220,7 @@ const SpotifyPlayer = () => {
 
       const data = await response.json();
       console.log("Search Results:", data);
-      setSearchTracks(data.tracks.items || []); // Update search results
+      setSearchTracks(data.tracks.items || []);
     } catch (error) {
       console.error("Failed to search tracks:", error);
     } finally {
@@ -227,7 +231,7 @@ const SpotifyPlayer = () => {
   // Handle Playlist Selection
   const handlePlaylistSelect = (playlistId) => {
     setSelectedPlaylist(playlistId);
-    setSearchTerm(""); // Clear search term
+    setSearchTerm("");
     fetchPlaylistTracks(playlistId);
   };
 
@@ -255,7 +259,7 @@ const SpotifyPlayer = () => {
       if (response.ok) {
         console.log("Playback started successfully");
         setIsPlaying(true);
-        setShowMusicSelector(false); // Close the popup after selecting a track
+        setShowMusicSelector(false);
       } else {
         const errorData = await response.json();
         console.error("Failed to start playback:", errorData);
@@ -294,12 +298,12 @@ const SpotifyPlayer = () => {
       artist.name.toLowerCase().includes(searchTerm.toLowerCase())
     )
   );
+
   const handleLogout = async () => {
     try {
-      // Send a request to your backend to log the user out
       const response = await fetch("http://localhost:8000/auth/logout", {
         method: "POST",
-        credentials: "include", // Include cookies for session-based logout
+        credentials: "include",
       });
   
       if (response.ok) {
@@ -327,59 +331,22 @@ const SpotifyPlayer = () => {
   };
 
   if (isPremium === false) {
-    return (
-      <div className="text-center p-4 bg-red-900 bg-opacity-30 rounded-lg">
-       
-        <h2 className="text-xl font-bold mb-4">Premium Account Required</h2>
-        <p className="mb-4">Spotify requires a Premium account to use the Web Playback SDK.</p>
-        <a
-          href="https://www.spotify.com/premium/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-green-400 hover:text-green-300 underline"
-        >
-          Upgrade to Premium
-        </a>
-        <div className="justify-center items-center flex mt-4">
-        <button
-        onClick={handleLogout}
-        className=" bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-4 rounded-full transition flex items-center justify-center"
-      >
-        Logout
-      </button>
-      </div>
-        
-      
-  
-      </div>
-      
-    );
+    return <PremiumRequired onLogout={handleLogout} />;
   }
-  
 
   return (
     <div className="flex flex-col relative">
       {accessToken && (
-      <button
-        onClick={handleLogout}
-        className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-2 rounded-full transition flex items-center justify-center"
-      >
-        Logout
-      </button>
-    )}
+        <button
+          onClick={handleLogout}
+          className="absolute top-4 right-4 bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-2 rounded-full transition flex items-center justify-center"
+        >
+          Logout
+        </button>
+      )}
 
       {!accessToken ? (
-        <div className="text-center py-10">
-          <Music2 size={64} className="mx-auto mb-6 text-green-500" />
-          <h2 className="text-xl font-bold mb-4">Connect to Spotify</h2>
-          <p className="mb-6 text-gray-300">Login with your Spotify account to start listening</p>
-          <button
-            onClick={handleLogin}
-            className="bg-green-500 hover:bg-green-600 text-white font-bold py-3 px-6 rounded-full transition flex items-center justify-center mx-auto"
-          >
-            <span>Login with Spotify</span>
-          </button>
-        </div>
+        <LoginButton onLogin={handleLogin} />
       ) : (
         <div className="space-y-6">
           {/* Now Playing Section */}
@@ -405,182 +372,49 @@ const SpotifyPlayer = () => {
               </div>
             )}
 
-            {/* Player Controls */}
-            <div className="flex justify-center items-center space-x-6 py-4 w-full">
-              <button
-                onClick={skipPrevious}
-                className="p-2 rounded-full hover:bg-gray-600 transition"
-                disabled={!playerReady}
-              >
-                <SkipBack size={20} />
-              </button>
-
-              <button
-                onClick={togglePlayPause}
-                className="p-2 bg-green-500 rounded-full hover:bg-green-600 transition"
-                disabled={!playerReady}
-              >
-                {isPlaying ? <Pause size={20} /> : <Play size={18} className="ml-1" />}
-              </button>
-
-              <button
-                onClick={skipNext}
-                className="p-2 rounded-full hover:bg-gray-600 transition"
-                disabled={!playerReady}
-              >
-                <SkipForward size={20} />
-              </button>
-            </div>
+            <PlayerControls 
+              isPlaying={isPlaying}
+              playerReady={playerReady}
+              onTogglePlayPause={togglePlayPause}
+              onSkipNext={skipNext}
+              onSkipPrevious={skipPrevious}
+            />
 
             {/* Browse Music Button */}
             <button
               onClick={() => setShowMusicSelector(true)}
               className="browse-music-btn bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-full transition flex items-center justify-center"
             >
-              <ListMusic size={18} className="mr-2" />
-              Browse Music
+              <span className="flex items-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
+                  <path d="M9 18V5l12-2v13"></path>
+                  <circle cx="6" cy="18" r="3"></circle>
+                  <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+                Browse Music
+              </span>
             </button>
           </div>
 
-          {/* Music Selector Popup */}
-          {showMusicSelector && (
-            <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-10 p-4">
-              <div
-                id="music-selector-popup"
-                className="bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-hidden flex flex-col"
-              >
-                <div className="p-4 bg-gradient-to-r from-gray-700 to-gray-800 flex justify-between items-center border-b border-gray-700">
-                  <h3 className="text-lg font-bold">Select Music</h3>
-                  <button
-                    onClick={() => {
-                      setShowMusicSelector(false);
-                      setSearchTerm(""); // Clear search term
-                    }}
-                    className="p-1 rounded-full hover:bg-gray-600"
-                  >
-                    <X size={20} />
-                  </button>
-                </div>
-
-                <div className="p-4 border-b border-gray-700">
-                  <div className="relative">
-                    <input
-                      type="text"
-                      placeholder="Search tracks..."
-                      value={searchTerm}
-                      onChange={(e) => {
-                        setSearchTerm(e.target.value);
-                        searchSpotifyTracks(e.target.value); // Trigger search on input change
-                      }}
-                      className="w-full p-2 pl-10 bg-gray-700 border border-gray-600 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-green-500"
-                    />
-                    <Search size={18} className="absolute left-3 top-2.5 text-gray-400" />
-                  </div>
-                </div>
-
-                <div className="flex h-full overflow-hidden">
-                  {/* Playlists Column */}
-                  <div className="w-1/3 border-r border-gray-700 overflow-y-auto p-2">
-                    <h4 className="text-sm font-medium text-gray-400 mb-2 px-2">YOUR PLAYLISTS</h4>
-                    <div className="space-y-1">
-                      {playlists.map((playlist) => (
-                        <button
-                          key={playlist.id}
-                          onClick={() => handlePlaylistSelect(playlist.id)}
-                          className={`w-full text-left p-2 rounded-lg transition ${
-                            selectedPlaylist === playlist.id
-                              ? 'bg-gray-600 text-white'
-                              : 'hover:bg-gray-700 text-gray-300'
-                          }`}
-                        >
-                          <p className="truncate text-sm">{playlist.name}</p>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Tracks Column */}
-                  <div className="w-2/3 overflow-y-auto">
-                    {loading ? (
-                      <div className="flex items-center justify-center h-full">
-                        <Loader size={24} className="animate-spin text-green-500" />
-                      </div>
-                    ) : (
-                      <div className="p-2">
-                        {searchTerm ? (
-                          searchTracks.length > 0 ? (
-                            <div className="space-y-1">
-                              {searchTracks.map((track) => (
-                                <button
-                                  key={track.id}
-                                  onClick={() => playTrack(track.uri)}
-                                  className="w-full flex items-center p-2 hover:bg-gray-700 rounded-lg transition"
-                                >
-                                  {track.album.images && track.album.images[2] && (
-                                    <img
-                                      src={track.album.images[2].url}
-                                      alt={track.album.name}
-                                      className="w-10 h-10 rounded mr-3"
-                                    />
-                                  )}
-                                  <div className="flex-1 text-left">
-                                    <p className="truncate text-sm font-medium">{track.name}</p>
-                                    <p className="truncate text-xs text-gray-400">
-                                      {track.artists.map(a => a.name).join(', ')}
-                                    </p>
-                                  </div>
-                                  <Play size={16} className="text-gray-400 ml-2" />
-                                </button>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-center py-8 text-gray-400">
-                              No matching tracks found
-                            </div>
-                          )
-                        ) : selectedPlaylist ? (
-                          filteredTracks.length > 0 ? (
-                            <div className="space-y-1">
-                              {filteredTracks.map((item) => (
-                                <button
-                                  key={item.track.id}
-                                  onClick={() => playTrack(item.track.uri)}
-                                  className="w-full flex items-center p-2 hover:bg-gray-700 rounded-lg transition"
-                                >
-                                  {item.track.album.images && item.track.album.images[2] && (
-                                    <img
-                                      src={item.track.album.images[2].url}
-                                      alt={item.track.album.name}
-                                      className="w-10 h-10 rounded mr-3"
-                                    />
-                                  )}
-                                  <div className="flex-1 text-left">
-                                    <p className="truncate text-sm font-medium">{item.track.name}</p>
-                                    <p className="truncate text-xs text-gray-400">
-                                      {item.track.artists.map(a => a.name).join(', ')}
-                                    </p>
-                                  </div>
-                                  <Play size={16} className="text-gray-400 ml-2" />
-                                </button>
-                              ))}
-                            </div>
-                          ) : (
-                            <div className="text-center py-8 text-gray-400">
-                              This playlist is empty
-                            </div>
-                          )
-                        ) : (
-                          <div className="text-center py-8 text-gray-400">
-                            Select a playlist to view tracks
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
+          <MusicSelector 
+            show={showMusicSelector}
+            onClose={() => {
+              setShowMusicSelector(false);
+              setSearchTerm("");
+            }}
+            searchTerm={searchTerm}
+            onSearchChange={(value) => {
+              setSearchTerm(value);
+              searchSpotifyTracks(value);
+            }}
+            playlists={playlists}
+            selectedPlaylist={selectedPlaylist}
+            onPlaylistSelect={handlePlaylistSelect}
+            tracks={filteredTracks}
+            searchTracks={searchTracks}
+            loading={loading}
+            onPlayTrack={playTrack}
+          />
         </div>
       )}
     </div>
