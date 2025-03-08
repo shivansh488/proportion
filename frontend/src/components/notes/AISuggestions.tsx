@@ -24,11 +24,13 @@ const DEFAULT_PROMPTS = {
 };
 
 interface AISuggestionsProps {
-  editorContent?: string;
-  editor?: Editor | null;
+  editorContent?: string; // Make it optional
+  editor?: Editor; // Use the Editor type from @tiptap/react
+  onSelect?: (suggestion: { title: string; content: string }) => void;
+  onInsertAtCursor?: (suggestion: string) => void; // New callback for inserting at cursor
 }
 
-export function AISuggestions({ editorContent, editor }: AISuggestionsProps) {
+export function AISuggestions({ editorContent, editor, onSelect, onInsertAtCursor }: AISuggestionsProps) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [promptType, setPromptType] = useState<keyof typeof DEFAULT_PROMPTS>('improve');
@@ -115,25 +117,35 @@ export function AISuggestions({ editorContent, editor }: AISuggestionsProps) {
   };
 
   const insertSuggestion = (suggestion: string) => {
-    if (!editor) return;
+    const formattedSuggestion = formatSuggestionText(suggestion);
+    
+    if (onSelect) {
+      onSelect(formattedSuggestion); // Pass suggestion to the parent component
+      return;
+    }
 
-    const { title, content } = formatSuggestionText(suggestion);
-
-    editor.chain()
-      .focus()
-      .createParagraphNear()
-      .insertContent(`
-        <div class="my-6 p-4 bg-accent/20 rounded-lg">
-          ${title ? `<h4 class="text-lg font-bold mb-2 text-primary">${title}</h4>` : ''}
-          <p class="text-base leading-7 font-normal">${content}</p>
-        </div>
-      `)
-      .run();
-
-    toast({
-      title: "Suggestion inserted",
-      description: "The suggestion has been added to your note.",
-    });
+    if (onInsertAtCursor) {
+      onInsertAtCursor(formattedSuggestion.content); // Insert at cursor position
+      return;
+    }
+  
+    // Fallback: Insert into editor if available
+    if (editor) {
+      editor.chain()
+        .focus()
+        .insertContentAt(editor.state.selection.from, `
+          <div class="my-6 p-4 bg-accent/20 rounded-lg">
+            ${formattedSuggestion.title ? `<h4 class="text-lg font-bold mb-2 text-primary">${formattedSuggestion.title}</h4>` : ''}
+            <p class="text-base leading-7 font-normal">${formattedSuggestion.content}</p>
+          </div>
+        `)
+        .run();
+      
+      toast({
+        title: "Suggestion inserted",
+        description: "The suggestion has been added to your note.",
+      });
+    }
   };
 
   const insertAllSuggestions = () => {

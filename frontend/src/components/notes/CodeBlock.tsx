@@ -2,7 +2,7 @@ import { useState, useRef, KeyboardEvent } from 'react';
 import { Button } from "@/components/ui/button";
 import { Play, Trash2 } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { CodeBlock as CodeBlockType } from './hooks/useCodeBlocks';
+import { AISuggestions } from './AISuggestions'; // Import suggestions component
 
 interface CodeBlockProps {
   id: string;
@@ -37,7 +37,6 @@ export function CodeBlock({
       if (onRun) {
         onRun(id);
       }
-      // Move focus away from textarea
       textareaRef.current?.blur();
     } else if (e.key === 'Tab') {
       e.preventDefault();
@@ -72,26 +71,17 @@ export function CodeBlock({
       <div className="flex items-center justify-between bg-accent/50 px-4 py-2 rounded-t-lg">
         <span className="text-sm font-medium">{language}</span>
         <div className="flex gap-2">
-          <Button
-            size="sm"
-            onClick={() => onRun?.(id)}
-            disabled={isRunning}
-            className="gap-2"
-          >
+          <Button size="sm" onClick={() => onRun?.(id)} disabled={isRunning} className="gap-2">
             <Play className="h-4 w-4" />
             {isRunning ? 'Running...' : 'Run'}
           </Button>
-          <Button
-            size="sm"
-            variant="destructive"
-            onClick={handleDelete}
-            className="gap-2"
-          >
+          <Button size="sm" variant="destructive" onClick={handleDelete} className="gap-2">
             <Trash2 className="h-4 w-4" />
             Delete
           </Button>
         </div>
       </div>
+      
       <div className="p-4 bg-accent/20">
         <textarea
           ref={textareaRef}
@@ -102,7 +92,17 @@ export function CodeBlock({
           rows={Math.max(code.split('\n').length, 3)}
           spellCheck={false}
         />
+        
+        {/* AI Suggestions component */}
+        <AISuggestions onSelect={(suggestion) => {
+          const newCode = code + "\n" + suggestion.content; // Append suggestion
+          setCode(newCode);
+          if (onChange) {
+            onChange(newCode);
+          }
+        }} />
       </div>
+
       {(initialOutput || initialError) && (
         <div className="p-4 border-t border-border bg-background">
           <h4 className="text-sm font-medium mb-2">Output:</h4>

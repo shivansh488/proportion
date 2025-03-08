@@ -1,12 +1,13 @@
 
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Settings, Plus, Home, Search, FolderOpen } from "lucide-react";
+import { Moon, Sun, Settings, Plus, Home, Search, FolderOpen, ChevronDown, ChevronRight, Briefcase, User  } from "lucide-react";
 import { useTheme } from "next-themes";
 import SpotifyPlayer from "../spotify/SpotifyPlayer";
 import { useToast } from "@/components/ui/use-toast";
 import { createNote, getNotes } from "@/utils/notes";
 import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 
 export function NoteSidebar() {
   const { theme, setTheme } = useTheme();
@@ -17,6 +18,7 @@ export function NoteSidebar() {
     queryKey: ['notes'],
     queryFn: getNotes,
   });
+  const [isWorkspaceOpen, setIsWorkspaceOpen] = useState<boolean>(false);
 
   const handleNewPage = async () => {
     try {
@@ -53,6 +55,9 @@ export function NoteSidebar() {
   const handleHome = () => {
     navigate('/');
   };
+  const handleProjectManage = () => {
+    navigate('/projectManage');};
+  
 
   return (
     <div className="w-64 h-screen bg-sidebar border-r border-border flex flex-col">
@@ -91,9 +96,29 @@ export function NoteSidebar() {
             <FolderOpen className="mr-2 h-4 w-4" />
             All Notes
           </Button>
+          <Button variant="ghost" 
+        className="w-full justify-start"
+        onClick={() => setIsWorkspaceOpen(!isWorkspaceOpen)}
+      >
+        
+        <FolderOpen className="mr-2 h-4 w-4" />
+        <span>Workspace</span>
+      </Button>
+      {isWorkspaceOpen && (
+        <div className="ml-6 mt-1 space-y-1">
+          <Button className="w-full justify-start" variant="ghost">
+            <User className="mr-2 h-4 w-4" />
+            <span>Personal</span>
+          </Button>
+          <Button className="w-full justify-start" variant="ghost">
+            <Briefcase className="mr-2 h-4 w-4" />
+            <span>Work</span>
+          </Button>
+        </div>
+      )}
         </nav>
       </div>
-      <div className="h-[50%] w-full  p-2 flex flex-col justify-center">
+      <div className="h-[38%] w-full  px-2 flex flex-col justify-center">
       <SpotifyPlayer />
       </div>
 

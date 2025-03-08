@@ -15,8 +15,9 @@ import { NoteHeader } from './NoteHeader';
 export function NoteContent() {
   const { id: noteId } = useParams();
   const [showLanguageSelector, setShowLanguageSelector] = useState(false);
-  
-  const { data: note } = useQuery<Note>({
+
+  // Fetch the note data using useQuery
+  const { data: note, isLoading: isNoteLoading } = useQuery<Note>({
     queryKey: ['note', noteId],
     queryFn: async () => {
       if (!noteId) return null;
@@ -29,10 +30,21 @@ export function NoteContent() {
       if (error) throw error;
       return data;
     },
-    enabled: !!noteId
+    enabled: !!noteId, // Only fetch if noteId is present
   });
-  
+
+  // Initialize the editor with the note content
   const editor = useNoteEditor(noteId, note?.content);
+
+  const handleInsertAtCursor = (suggestion: string) => {
+    if (editor) {
+      editor.chain()
+        .focus()
+        .insertContent(suggestion)
+        .run();
+    }
+  };
+
   const { 
     codeBlocks, 
     supportedLanguages,
@@ -43,21 +55,33 @@ export function NoteContent() {
     runCode 
   } = useCodeBlocks();
 
+  // Show loading state while fetching the note
+  if (isNoteLoading) {
+    return <div>Loading note...</div>;
+  }
+
+  // Show error state if editor is not initialized
   if (!editor) {
-    return null;
+    return <div>Failed to initialize editor.</div>;
   }
 
   return (
     <article className="flex-1 h-screen overflow-auto bg-background relative">
       <div className="max-w-4xl mx-auto px-4 py-8">
         <div className="space-y-8">
+          {/* Pass the note's creation date to NoteHeader */}
           <NoteHeader createdAt={note?.created_at} />
+
+          {/* Pass the editor and callback to NoteToolbar */}
           <NoteToolbar 
             editor={editor}
             onShowLanguageSelector={() => setShowLanguageSelector(true)}
           />
+
+          {/* Render the editor content */}
           <EditorContent editor={editor} />
 
+          {/* Render code blocks */}
           {codeBlocks.map(block => (
             <CodeBlock
               key={block.id}
@@ -73,6 +97,7 @@ export function NoteContent() {
             />
           ))}
 
+          {/* Render demo content if no noteId is present */}
           {!noteId && (
             <>
               <CodeBlock
@@ -86,15 +111,18 @@ for i in range(5):
                 onRun={runCode}
               />
 
+              {/* Render AISuggestions component */}
               <AISuggestions 
-                editorContent={editor.getHTML()} 
+                editorContent={editor?.getHTML()} 
                 editor={editor}
+                onInsertAtCursor={handleInsertAtCursor} // Pass the callback
               />
             </>
           )}
         </div>
       </div>
 
+      {/* Render LanguageSelector component */}
       <LanguageSelector
         open={showLanguageSelector}
         onClose={() => setShowLanguageSelector(false)}
