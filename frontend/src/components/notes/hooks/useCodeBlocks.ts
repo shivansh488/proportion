@@ -1,26 +1,69 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from "@/components/ui/use-toast";
 
 export interface CodeBlock {
   id: string;
   language: string;
   code: string;
+  output?: string;
+  error?: string;
+  isRunning?: boolean;
+}
+
+interface PistonRuntime {
+  language: string;
+  version: string;
+  aliases: string[];
 }
 
 export function useCodeBlocks() {
   const [codeBlocks, setCodeBlocks] = useState<CodeBlock[]>([]);
+  const [supportedLanguages, setSupportedLanguages] = useState<string[]>([]);
+  const [isLoadingLanguages, setIsLoadingLanguages] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchSupportedLanguages = async () => {
+      setIsLoadingLanguages(true);
+      try {
+        const response = await fetch('/piston/api/v2/runtimes');
+        if (!response.ok) {
+          throw new Error('Failed to fetch languages');
+        }
+        const data: PistonRuntime[] = await response.json();
+        const languages = Array.from(new Set(
+          data.flatMap(runtime => [runtime.language, ...runtime.aliases])
+        )).sort();
+        setSupportedLanguages(languages);
+      } catch (error) {
+        console.error('Failed to fetch supported languages:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch supported languages. Using default list.",
+          variant: "destructive"
+        });
+        setSupportedLanguages(['python', 'javascript', 'typescript', 'java', 'c', 'cpp']);
+      } finally {
+        setIsLoadingLanguages(false);
+      }
+    };
+
+    fetchSupportedLanguages();
+  }, [toast]);
 
   const insertCodeBlock = (language: string) => {
     const defaultCode = language === 'python' 
       ? 'print("Hello, World!")\n# Add your code here'
       : language === 'java'
       ? 'public class Main {\n    public static void main(String[] args) {\n        System.out.println("Hello, World!");\n    }\n}'
-      : language === 'c++'
+      : language === 'cpp'
       ? '#include <iostream>\n\nint main() {\n    std::cout << "Hello, World!" << std::endl;\n    return 0;\n}'
       : language === 'c'
       ? '#include <stdio.h>\n\nint main() {\n    printf("Hello, World!\\n");\n    return 0;\n}'
+      : language === 'javascript'
+      ? 'console.log("Hello, World!");\n// Add your code here'
+      : language === 'typescript'
+      ? 'console.log("Hello, World!");\n// Add your code here'
       : '// Add your code here';
     
     const newCodeBlock = {
@@ -51,10 +94,97 @@ export function useCodeBlocks() {
     ));
   };
 
+  const runCode = async (blockId: string) => {
+    const block = codeBlocks.find(b => b.id === blockId);
+    if (!block) return;
+
+    setCodeBlocks(prev => prev.map(b => 
+      b.id === blockId ? { ...b, isRunning: true, output: undefined, error: undefined } : b
+    ));
+
+    try {
+      const response = await fetch('/piston/api/v2/execute', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          language: block.language,
+          version: '*',
+          files: [
+            {
+              name: 'main',
+              content: block.code
+            }
+          ],
+          stdin: '',
+          args: [],
+          compile_timeout: 10000,
+          run_timeout: 3000,
+          compile_memory_limit: -1,
+          run_memory_limit: -1
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+
+      if (data.run?.stderr || data.compile?.stderr) {
+        setCodeBlocks(prev => prev.map(b => 
+          b.id === blockId ? {
+            ...b,
+            isRunning: false,
+            error: data.run?.stderr || data.compile?.stderr
+          } : b
+        ));
+        toast({
+          title: "Error executing code",
+          description: "There was an error running your code.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      setCodeBlocks(prev => prev.map(b => 
+        b.id === blockId ? {
+          ...b,
+          isRunning: false,
+          output: data.run?.stdout,
+          error: undefined
+        } : b
+      ));
+
+      toast({
+        title: "Code executed",
+        description: "Your code ran successfully",
+      });
+    } catch (error) {
+      console.error('Failed to execute code:', error);
+      setCodeBlocks(prev => prev.map(b => 
+        b.id === blockId ? {
+          ...b,
+          isRunning: false,
+          error: 'Failed to execute code. Please try again.'
+        } : b
+      ));
+      toast({
+        title: "Error",
+        description: "Failed to execute code. Please try again.",
+        variant: "destructive"
+      });
+    }
+  };
+
   return {
     codeBlocks,
+    supportedLanguages,
+    isLoadingLanguages,
     insertCodeBlock,
     handleDeleteCodeBlock,
     handleCodeChange,
+    runCode,
   };
 }

@@ -1,4 +1,3 @@
-
 import { EditorContent } from '@tiptap/react';
 import { CodeBlock } from "./CodeBlock";
 import { AISuggestions } from "./AISuggestions";
@@ -34,7 +33,15 @@ export function NoteContent() {
   });
   
   const editor = useNoteEditor(noteId, note?.content);
-  const { codeBlocks, insertCodeBlock, handleDeleteCodeBlock, handleCodeChange } = useCodeBlocks();
+  const { 
+    codeBlocks, 
+    supportedLanguages,
+    isLoadingLanguages,
+    insertCodeBlock, 
+    handleDeleteCodeBlock, 
+    handleCodeChange,
+    runCode 
+  } = useCodeBlocks();
 
   if (!editor) {
     return null;
@@ -54,22 +61,29 @@ export function NoteContent() {
           {codeBlocks.map(block => (
             <CodeBlock
               key={block.id}
+              id={block.id}
               code={block.code}
               language={block.language}
+              isRunning={block.isRunning}
+              output={block.output}
+              error={block.error}
               onChange={(newCode) => handleCodeChange(block.id, newCode)}
               onDelete={() => handleDeleteCodeBlock(block.id)}
+              onRun={runCode}
             />
           ))}
 
           {!noteId && (
             <>
               <CodeBlock
+                id="demo"
                 language="python"
                 code={`print("Hello, World!")
 # Try running this code!
 for i in range(5):
     print(f"Count: {i}")`}
                 onDelete={() => {}}
+                onRun={runCode}
               />
 
               <AISuggestions editorContent={editor.getHTML()} />
@@ -82,6 +96,8 @@ for i in range(5):
         open={showLanguageSelector}
         onClose={() => setShowLanguageSelector(false)}
         onSelect={insertCodeBlock}
+        languages={supportedLanguages}
+        isLoading={isLoadingLanguages}
       />
     </article>
   );
