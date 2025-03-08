@@ -26,7 +26,7 @@ export function useCodeBlocks() {
     const fetchSupportedLanguages = async () => {
       setIsLoadingLanguages(true);
       try {
-        const response = await fetch('/piston/api/v2/runtimes');
+        const response = await fetch('/piston/runtimes');
         if (!response.ok) {
           throw new Error('Failed to fetch languages');
         }
@@ -103,7 +103,7 @@ export function useCodeBlocks() {
     ));
 
     try {
-      const response = await fetch('/piston/api/v2/execute', {
+      const response = await fetch('/piston/execute', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -113,16 +113,11 @@ export function useCodeBlocks() {
           version: '*',
           files: [
             {
-              name: 'main',
               content: block.code
             }
           ],
           stdin: '',
-          args: [],
-          compile_timeout: 10000,
-          run_timeout: 3000,
-          compile_memory_limit: -1,
-          run_memory_limit: -1
+          args: []
         })
       });
 
@@ -132,12 +127,12 @@ export function useCodeBlocks() {
 
       const data = await response.json();
 
-      if (data.run?.stderr || data.compile?.stderr) {
+      if (data.run?.stderr) {
         setCodeBlocks(prev => prev.map(b => 
           b.id === blockId ? {
             ...b,
             isRunning: false,
-            error: data.run?.stderr || data.compile?.stderr
+            error: data.run.stderr
           } : b
         ));
         toast({
@@ -152,7 +147,7 @@ export function useCodeBlocks() {
         b.id === blockId ? {
           ...b,
           isRunning: false,
-          output: data.run?.stdout,
+          output: data.run.stdout,
           error: undefined
         } : b
       ));

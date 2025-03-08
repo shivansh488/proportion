@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     proxy: {
       '/piston': {
-        target: 'https://emerald-dusk-1b0f.pistond.dev',
+        target: 'https://emkc.org/api/v2/piston',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/piston/, ''),
         secure: false
