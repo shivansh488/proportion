@@ -9,6 +9,15 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
     proxy: {
+      '/gemini': {
+        target: 'https://generativelanguage.googleapis.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/gemini/, ''),
+        secure: true,
+        headers: {
+          'Origin': 'http://localhost:8080'
+        }
+      },
       '/piston': {
         target: 'https://emkc.org/api/v2/piston',
         changeOrigin: true,

@@ -86,7 +86,10 @@ for i in range(5):
                 onRun={runCode}
               />
 
-              <AISuggestions editorContent={editor.getHTML()} />
+              <AISuggestions 
+                editorContent={editor.getHTML()} 
+                editor={editor}
+              />
             </>
           )}
         </div>
