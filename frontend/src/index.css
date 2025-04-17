@@ -196,3 +196,123 @@ select option {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background-color: hsl(var(--primary)/0.5);
 }
+@layer base {
+  :root {
+    --background: 240 6% 10%;
+    --foreground: 0 0% 98%;
+
+    --card: 240 6% 10%;
+    --card-foreground: 0 0% 98%;
+
+    --popover: 240 6% 10%;
+    --popover-foreground: 0 0% 98%;
+
+    --primary: 0 0% 98%;
+    --primary-foreground: 240 6% 10%;
+
+    --secondary: 240 4% 16%;
+    --secondary-foreground: 0 0% 98%;
+
+    --muted: 240 4% 16%;
+    --muted-foreground: 240 5% 65%;
+
+    --accent: 240 4% 16%;
+    --accent-foreground: 0 0% 98%;
+
+    --destructive: 0 63% 31%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 240 4% 16%;
+    --input: 240 4% 16%;
+    --ring: 240 5% 84%;
+
+    --sidebar-background: 240 6% 10%;
+    --sidebar-foreground: 240 5% 96%;
+    --sidebar-primary: 224 76% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4% 16%;
+    --sidebar-accent-foreground: 240 5% 96%;
+    --sidebar-border: 240 4% 16%;
+    --sidebar-ring: 217 91% 60%;
+  }
+}
+
+* {
+  @apply border-border;
+}
+
+body {
+  @apply bg-background text-foreground antialiased;
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-muted-foreground/20 rounded-full transition-colors;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-muted-foreground/40;
+}
+
+.glass-card {
+  @apply bg-gray-900/80 backdrop-blur-md border border-gray-800 rounded-xl shadow-lg transition-all duration-300;
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.glass-card-dark {
+  @apply bg-gray-900/80 backdrop-blur-md border border-gray-800 rounded-xl shadow-lg transition-all duration-300;
+  -webkit-backdrop-filter: blur(20px);
+}
+
+.text-shadow-sm {
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.text-gradient {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--primary-foreground)));
+}
+
+.text-gradient-gray {
+  @apply bg-clip-text text-transparent;
+  background-image: linear-gradient(to right, #333333, #666666);
+}
+
+.page-transition-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.page-transition-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.page-transition-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.page-transition-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+.project-card {
+  @apply transform transition-all duration-300 hover:scale-[1.02] hover:shadow-xl;
+}

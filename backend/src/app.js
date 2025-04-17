@@ -5,6 +5,7 @@ import session from "express-session";
 import passport from "./config/passport.js"; // Import Passport configuration
 import spotifyRoutes from "./routes/authRoutes.js";
 import dotenv from "dotenv";
+import ProjectRoute from "./routes/projectRoutes.js"
 
 // Load environment variables
 dotenv.config();
@@ -46,6 +47,8 @@ app.use(passport.session());
 
 // Routes
 app.use("/auth", spotifyRoutes);
+app.use("/user",ProjectRoute)
+
 
 // Global Error Handling Middleware
 app.use((err, req, res, next) => {

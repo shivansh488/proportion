@@ -55,7 +55,22 @@ const App = () => (
                       <Index />
                     </ProtectedRoute>
                   }
-                />
+                /><Route
+                path="/local-project"
+                element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/new-project"
+                element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                }
+              />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
