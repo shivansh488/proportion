@@ -55,8 +55,8 @@ export function NoteSidebar() {
   const handleHome = () => {
     navigate('/');
   };
-  const handleProjectManage = () => {
-    navigate('/projectManage');};
+  const handleLocalProjectManage = () => {
+    navigate('/local-project');};
   
 
   return (
@@ -106,7 +106,7 @@ export function NoteSidebar() {
       </Button>
       {isWorkspaceOpen && (
         <div className="ml-6 mt-1 space-y-1">
-          <Button className="w-full justify-start" variant="ghost">
+          <Button onClick={handleLocalProjectManage} className="w-full justify-start" variant="ghost">
             <User className="mr-2 h-4 w-4" />
             <span>Personal</span>
           </Button>

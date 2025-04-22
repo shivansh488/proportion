@@ -34,7 +34,7 @@ router.get("/user", (req, res) => {
     console.log("User Data:", req.user); // ✅ Debug user data
 
     res.json({ 
-      user: req.user, 
+      user: req.user,   
       accessToken: req.user.accessToken 
     });
   } else {
