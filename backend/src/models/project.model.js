@@ -1,53 +1,65 @@
 import mongoose from 'mongoose';
 
 
+// const cardSchema = new mongoose.Schema({
+//     title: {
+//         type: String,
+//         required: true,
+//         trim: true
+//     },
+//     id: {
+//         type: String,
+//         required: true,
+//         unique: true
+//     },
+//     description: {
+//         type: String,
+//         default: '',
+//         trim: true
+//     },
+//     column: {
+//         type: mongoose.Schema.Types.ObjectId,
+//         ref: 'Column',
+//         required: true
+//     },
+//     createdAt: {
+//         type: Date,
+//         default: Date.now,
+//         immutable: true
+//     },
+//     assignedTo: {
+//         type: String,
+//         trim: true
+//     },
+//     order: {
+//         type: Number,
+//         default: 0,
+//         min: 0
+//     }
+// });
 const cardSchema = new mongoose.Schema({
-    title: {
+    title:{
         type: String,
-        required: true,
-        trim: true
-    },
-    id: {
-        type: String,
-        required: true,
-        unique: true
-    },
-    description: {
-        type: String,
-        default: '',
-        trim: true
-    },
-    column: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Column',
-        required: true
-    },
-    createdAt: {
-        type: Date,
-        default: Date.now,
-        immutable: true
-    },
-    assignedTo: {
-        type: String,
-        trim: true
+        required: true,  
     },
     order: {
         type: Number,
         default: 0,
         min: 0
-    }
-});
+    },
+    column:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Column',
+        required: true}
+
+
+})
 
 const columnSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
         trim: true
-    },
-    columnId: {
-        type: String,
-        required: true,
-        unique: true
     },
     headingColor: {
         type: String,
@@ -73,7 +85,6 @@ const projectSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        unique: true,
         trim: true
     },
     description: {

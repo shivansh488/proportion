@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from 'react';
-
+import { useContext } from 'react';
 import ProjectCard from './ProjectCard';
 import { Search, Filter, ArrowUpDown } from 'lucide-react';
 import { useAuth } from '@/contexts/auth';
 import { Project } from '@/lib/projectData';
-import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+import { useProject } from '@/contexts/project';
 
 // src/types/project.ts
 
@@ -17,36 +19,51 @@ const ProjectHistory = () => {
   const [projectData, setProjectData] = useState<Project[]>([]); // Initialize as an empty array
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-
+  const {fetchProject} = useProject(); // Fetch project function from context
+  const navigate = useNavigate(); // Use navigate from react-router-dom
   // Fetch project history on component mount
   useEffect(() => {
     const fetchHistory = async () => {
       try {
-        const response = await axios.get(`http://localhost:8000/user/get-project`, {
-          params: { email: user.email },
+        const response = await fetch('http://localhost:8000/user/get-user-project', {
+          method: 'POST',
+          body: JSON.stringify({ email: user.email }),
+          headers: { 'Content-Type': 'application/json' },
         });
-        console.log('API Response:', response.data); // Log the response
-
-        if (response.data && response.data.success && Array.isArray(response.data.data)) {
-          setProjectData(response.data.data); // Set the projects array from the `data` field
-          setLoading(false)
+        
+        const data = await response.json(); // Parse the JSON response
+        
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to fetch projects');
+        }
+        
+        if (data.success && Array.isArray(data.data)) {
+          setProjectData(data.data); // Set the projects array from the `data` field
         } else {
           throw new Error("Invalid response structure");
         }
       } catch (error) {
-        setLoading(false);
-        setError('Failed to fetch project history. Please try again later.');
+        setError(error.message || 'Failed to fetch project history. Please try again later.');
         console.error('Error fetching project history:', error);
+      } finally {
+        setLoading(false); // Ensure loading is set to false in both success and error cases
       }
     };
 
     setLoading(true);
-    fetchHistory(); // Call the function
-  }, [user.email]); // Add user.email as a dependency
+    setError(null); 
+    fetchHistory(); 
+  }, [user.email, setProjectData, setLoading, setError]); 
 
   // Handle project click
   const handleProjectClick = (project: Project) => {
-    console.log('Project clicked:', project.title);
+    const projectId=project._id;
+    try {
+      navigate(`/project/${projectId}`); // Navigate to the project details page
+    } catch (error) {
+      console.error('Error fetching project details:', error);
+    } // Use project._id as the unique identifier
+    // Fetch project details using the context function
     // In a real app, this would navigate to the project details page
     // Example: navigate(`/projects/${project._id}`);
   };

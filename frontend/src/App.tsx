@@ -10,6 +10,7 @@ import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import NotFound from "./pages/NotFound";
+import { ProjectProvider } from "./contexts/project";
 
 const queryClient = new QueryClient();
 
@@ -17,6 +18,7 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
       <div className="min-h-screen bg-background text-foreground">
+        <ProjectProvider>
         <AuthProvider>
           <TooltipProvider>
             <Toaster />
@@ -71,11 +73,20 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/project/:projectId"
+                element={
+                  <ProtectedRoute>
+                    <Index />
+                  </ProtectedRoute>
+                }
+              />
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
           </TooltipProvider>
         </AuthProvider>
+        </ProjectProvider>
       </div>
     </ThemeProvider>
   </QueryClientProvider>
